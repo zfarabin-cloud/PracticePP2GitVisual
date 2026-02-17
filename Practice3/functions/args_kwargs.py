@@ -6,11 +6,14 @@ def sum_all(*numbers):
   for num in numbers:
     total += num
   return total
+result1 = sum_all(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+print(result1)
 
 # **kwargs for arbitrary keyword arguments
 def user_details(**details):
   for key, value in details.items():
     print(key + ":", value)
+user_details(name="Alice", age=25, city="Berlin", job="Engineer")
 
 # Unpacking arguments
 numbers = [1, 2, 3]
