@@ -1,4 +1,4 @@
-#Write a python program to convert snake case string to camel case string.
+# Write a python program to convert snake case string to camel case string.
 
 import re
 def snake_camel(s):
