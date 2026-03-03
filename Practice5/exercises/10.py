@@ -8,6 +8,6 @@ def com(s):
     else:
         res += ('_' + s.group(2)).lower()
     return res
-s = input()
+s = "MyCamelCaseString"
 snake = re.sub(r'(^[A-Z]| [A-Z])|([A-Z])', com, s) 
 print(snake)
