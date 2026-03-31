@@ -4,13 +4,16 @@ import os
 from connect import get_connection
 
 
-# Requirement 1: Design table(s) for the PhoneBook
+# Требование 1: Создаем таблицу для телефонной книги
 def create_table():
-    conn = get_connection()
+    conn = get_connection() # Подключаемся к базе
     if not conn:
         return
     try:
         with conn.cursor() as cur:
+            # Создаем таблицу, если ее нет.
+            # SERIAL делает так, чтобы ID добавлялся сам.
+            # UNIQUE не дает сохранить два одинаковых номера.
             cur.execute(
                 """
                 CREATE TABLE IF NOT EXISTS contacts (
@@ -20,15 +23,15 @@ def create_table():
                 );
             """
             )
-            conn.commit()
+            conn.commit() # Сохраняем изменения
             print("Table 'contacts' is ready.")
     except Exception as e:
         print(f"Error creating table: {e}")
     finally:
-        conn.close()
+        conn.close() # Закрываем соединение
 
 
-# Requirement 2: Implement inserting data from a CSV file
+# Требование 2: Загружаем данные из CSV файла
 def insert_from_csv(file_path):
     if not os.path.exists(file_path):
         print(f"File {file_path} not found.")
@@ -41,10 +44,10 @@ def insert_from_csv(file_path):
     try:
         with conn.cursor() as cur:
             with open(file_path, "r", encoding="utf-8") as f:
-                reader = csv.DictReader(f)
+                reader = csv.DictReader(f) # Читаем файл как словарь
                 count = 0
                 for row in reader:
-                    # Using ON CONFLICT to avoid errors on duplicate phone numbers
+                    # ON CONFLICT DO NOTHING спасает от ошибки, если номер уже есть
                     cur.execute(
                         """
                         INSERT INTO contacts (username, phone) 
@@ -63,7 +66,7 @@ def insert_from_csv(file_path):
         conn.close()
 
 
-# Requirement 3: Implement inserting data entered from the console
+# Требование 3: Добавляем контакт вручную из консоли
 def insert_contact(username, phone):
     conn = get_connection()
     if not conn:
@@ -71,6 +74,7 @@ def insert_contact(username, phone):
 
     try:
         with conn.cursor() as cur:
+            # %s вместо f-строк защищает базу от взлома
             cur.execute(
                 "INSERT INTO contacts (username, phone) VALUES (%s, %s);",
                 (username, phone),
@@ -83,7 +87,7 @@ def insert_contact(username, phone):
         conn.close()
 
 
-# Requirement 4: Implement updating a contact's first name or phone number
+# Требование 4: Обновляем имя или телефон контакта
 def update_contact(old_username, new_username=None, new_phone=None):
     conn = get_connection()
     if not conn:
@@ -91,6 +95,7 @@ def update_contact(old_username, new_username=None, new_phone=None):
 
     try:
         with conn.cursor() as cur:
+            # Проверяем, что именно попросили изменить
             if new_username and new_phone:
                 cur.execute(
                     "UPDATE contacts SET username=%s, phone=%s WHERE username=%s;",
@@ -118,7 +123,7 @@ def update_contact(old_username, new_username=None, new_phone=None):
         conn.close()
 
 
-# Requirement 5: Implement querying contacts with different filters
+# Требование 5: Ищем контакты по разным фильтрам
 def query_contacts(filter_by, value):
     conn = get_connection()
     if not conn:
@@ -127,18 +132,20 @@ def query_contacts(filter_by, value):
     try:
         with conn.cursor() as cur:
             if filter_by == "name":
+                # ILIKE ищет без учета регистра, % заменяет любые символы
                 cur.execute(
                     "SELECT * FROM contacts WHERE username ILIKE %s;",
                     (f"%{value}%",),
                 )
             elif filter_by == "prefix":
+                # LIKE ищет точное совпадение начала номера
                 cur.execute(
                     "SELECT * FROM contacts WHERE phone LIKE %s;", (f"{value}%",)
                 )
             else:
                 cur.execute("SELECT * FROM contacts;")
 
-            rows = cur.fetchall()
+            rows = cur.fetchall() # Получаем все найденные строки
             print(f"\nFound {len(rows)} contacts:")
             for row in rows:
                 print(f"ID: {row[0]} | Name: {row[1]} | Phone: {row[2]}")
@@ -149,7 +156,7 @@ def query_contacts(filter_by, value):
         conn.close()
 
 
-# Requirement 6: Implement deleting a contact by username or phone number
+# Требование 6: Удаляем контакт по имени или номеру
 def delete_contact(identifier, by_type="name"):
     conn = get_connection()
     if not conn:
@@ -177,9 +184,9 @@ def delete_contact(identifier, by_type="name"):
         conn.close()
 
 
-# Simple menu to test everything
+# Простой интерфейс для тестирования программы
 if __name__ == "__main__":
-    create_table()
+    create_table() # Подготавливаем базу перед запуском меню
 
     while True:
         print("\n--- PHONEBOOK MENU ---")
@@ -194,7 +201,7 @@ if __name__ == "__main__":
         choice = input("Select an option (1-7): ")
 
         if choice == "1":
-            # Using absolute path structure from image
+            # Загружаем из указанного пути
             insert_from_csv("Practice7/contacts.csv")
         elif choice == "2":
             name = input("Enter name: ")
