@@ -1,0 +1,6 @@
+username,phone,email,birthday,group,phone_type
+Alice Smith,77001112233,alice@gmail.com,1990-04-15,Friend,mobile
+Bob Johnson,77009998877,bob@work.com,1985-11-30,Work,work
+Carol White,77012345678,carol@gmail.com,1993-07-22,Family,home
+Dave Brown,77055544433,dave@yahoo.com,,Other,mobile
+Eve Davis,77066677788,eve@gmail.com,1998-01-05,Friend,mobile
